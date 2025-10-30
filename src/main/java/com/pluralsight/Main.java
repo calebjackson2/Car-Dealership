@@ -1,3 +1,4 @@
 package com.pluralsight;
 
-public class Dealership {
+public class Main {
+}
