@@ -5,58 +5,83 @@ import java.util.Scanner;
 
 public class UserInterface {
     private Dealership dealership;
-    private Scanner scanner = new Scanner(System.in);
+    private final Scanner scanner = new Scanner(System.in);
 
     public void display() {
         init();
-        while (true) {
-            displayMenu();
+        boolean running = true;
+
+        while (running) {
+            System.out.println("\n=== DEALERSHIP MENU ===");
+            System.out.println("1. Show All Vehicles");
+            System.out.println("2. Add Vehicle");
+            System.out.println("3. Remove Vehicle");
+            System.out.println("4. Exit");
+            System.out.print("Choose an option: ");
+
             int choice = scanner.nextInt();
-            scanner.nextLine(); // consume leftover newline
+            scanner.nextLine();
             switch (choice) {
-                case 7 -> processAllVehiclesRequest();
-                case 99 -> {
-                    System.out.println("Goodbye!");
-                    return;
-                }
-                default -> System.out.println("Option not implemented yet.");
+                case 1 -> processAllVehiclesRequest();
+                case 2 -> processAddVehicleRequest();
+                case 3 -> processRemoveVehicleRequest();
+                case 4 -> running = false;
+                default -> System.out.println("Invalid choice, try again.");
             }
         }
     }
 
     private void init() {
-        DealershipFileManager fileManager = new DealershipFileManager();
-        this.dealership = fileManager.getDealership();
-    }
-    private void displayMenu() {
-        System.out.println("""
-                ========== DEALERSHIP MENU ==========
-                1 - Find vehicles within price range
-                2 - Find vehicles by make/model
-                3 - Find vehicles by year range
-                4 - Find vehicles by color
-                5 - Find vehicles by mileage range
-                6 - Find vehicles by type
-                7 - List ALL vehicles
-                8 - Add a vehicle
-                9 - Remove a vehicle
-                99 - Quit
-                =====================================
-                Enter your choice: """);
-    }
-
-    private void processAllVehiclesRequest() {
-        ArrayList<Vehicle> vehicles = dealership.getAllVehicles();
-        displayVehicles(vehicles);
+        DealershipFileManager dfm = new DealershipFileManager();
+        this.dealership = dfm.getDealership();
     }
 
     private void displayVehicles(ArrayList<Vehicle> vehicles) {
-        if (vehicles.isEmpty()) {
-            System.out.println("No vehicles found.");
-        } else {
-            for (Vehicle v : vehicles) {
-                System.out.println(v);
+        for (Vehicle v : vehicles) {
+            System.out.println(v);
+        }
+    }
+
+    private void processAllVehiclesRequest() {
+        displayVehicles(dealership.getAllVehicles());
+    }
+
+    private void processAddVehicleRequest() {
+        System.out.println("Enter Vehicle Info:");
+        System.out.print("VIN: "); int vin = scanner.nextInt();
+        scanner.nextLine();
+        System.out.print("Make: "); String make = scanner.nextLine();
+        System.out.print("Model: "); String model = scanner.nextLine();
+        System.out.print("Year: "); int year = scanner.nextInt();
+        scanner.nextLine();
+        System.out.print("Color: "); String color = scanner.nextLine();
+        System.out.print("Odometer: "); int odometer = scanner.nextInt();
+        System.out.print("Price: "); double price = scanner.nextDouble();
+
+        Vehicle vehicle = new Vehicle(vin, make, model, year, color, odometer, price);
+        dealership.addVehicle(vehicle);
+
+        new DealershipFileManager().saveDealership(dealership);
+        System.out.println("Vehicle added successfully!");
+    }
+
+    private void processRemoveVehicleRequest() {
+        System.out.print("Enter VIN to remove: ");
+        int vin = scanner.nextInt();
+        Vehicle toRemove = null;
+
+        for (Vehicle v : dealership.getAllVehicles()) {
+            if (v.getVin() == vin) {
+                toRemove = v;
+                break;
             }
+        }
+        if (toRemove != null) {
+            dealership.removeVehicle(toRemove);
+            new DealershipFileManager().saveDealership(dealership);
+            System.out.println("Vehicle removed successfully!");
+        } else {
+            System.out.println("Vehicle not found!");
         }
     }
 }
