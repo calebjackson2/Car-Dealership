@@ -8,8 +8,7 @@ public class DealershipFileManager {
         Dealership dealership = null;
 
         try (BufferedReader reader = new BufferedReader(new FileReader("dealership.csv"))) {
-            String line = reader.readLine(); // Read dealership info line
-
+            String line = reader.readLine();
             if (line != null && !line.trim().isEmpty()) {
                 String[] info = line.split("\\|");
                 if (info.length >= 3) {
@@ -18,11 +17,9 @@ public class DealershipFileManager {
                     String phone = info[2];
                     dealership = new Dealership(name, address, phone);
                 } else {
-                    // File header malformed, create default dealership
                     dealership = new Dealership("Unknown Dealership", "N/A", "N/A");
                 }
             } else {
-                // No header found (empty file)
                 dealership = new Dealership("Default Dealership", "123 Default St", "000-0000");
             }
 
